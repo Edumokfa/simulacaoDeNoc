@@ -28,7 +28,6 @@ public class SimulacaoDeNoCMPSoC {
     }
 
     static class Tarefa {
-
         public String origem = "";
         public String destino = "";
         public int pacotes = 0;
