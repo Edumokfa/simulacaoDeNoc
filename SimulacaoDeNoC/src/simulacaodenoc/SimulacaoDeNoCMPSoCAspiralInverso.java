@@ -11,7 +11,7 @@ import org.json.simple.parser.ParseException;
 
 public class SimulacaoDeNoCMPSoCAspiralInverso {
 
-    private static String diretorio = "C:\\Users\\edumo\\Documents\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\";
+    private static String diretorio = "C:\\Users\\edumo\\OneDrive\\Documentos\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\";
 
     static class Objeto {
 
@@ -41,7 +41,7 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
         }
     }
 
-    static Objeto[][] preencheValoreMatriz(Objeto[][] matriz, String jsonAplicacao) {
+    static Objeto[][] preencheValoreMatriz(Objeto[][] matriz, String jsonAplicacao, int quantTarefas) {
         try {
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(diretorio + jsonAplicacao + ".json"));
@@ -58,12 +58,11 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
                 if (((String) jsonTarefa.get("tarefa_origem")).matches("[0-9]+")) {
                     Integer origem = Integer.valueOf((String) jsonTarefa.get("tarefa_origem"));
                     Integer destino = Integer.valueOf((String) jsonTarefa.get("tarefa_destino"));
-                    Integer pacotes = ((Long) jsonTarefa.get("quantidade_pacotes")).intValue();
                     int altura = 0, largura = 0;
                     boolean movDireita = true, movEsquerda = false, movBaixo = false, movCima = false;
                     while (origem <= destino) {
                         Objeto objetoMatriz = matriz[altura][largura];
-                        if (objetoMatriz.listaTarefas.size() == pacotes) {
+                        if (objetoMatriz.listaTarefas.size() == quantTarefas) {
                             //movimenta na matriz
                             if (largura < matriz[0].length - 1 && movDireita) {
                                 largura++;
@@ -125,6 +124,7 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
             Integer largura = Integer.valueOf((String) jsonObject.get("MPSOC_SIZE_X"));
             Integer altura = Integer.valueOf((String) jsonObject.get("MPSOC_SIZE_Y"));
             JSONArray objeto = (JSONArray) jsonObject.get("TEST");
+            Integer tarefas = (Integer) jsonObject.get("TASKS_PER_PROCESSOR");
             Objeto[][] matriz = new Objeto[largura][altura];
 
             for (Objeto[] matriz1 : matriz) {
@@ -138,7 +138,7 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
 
                 Integer quantidadeExecucoes = Integer.valueOf((String) aplicacaoAux.get("QTD"));
                 while (quantidadeExecucoes > 0) {
-                    matriz = preencheValoreMatriz(matriz, (String) aplicacaoAux.get("APP"));
+                    matriz = preencheValoreMatriz(matriz, (String) aplicacaoAux.get("APP"), tarefas);
                     quantidadeExecucoes--;
                 }
             }

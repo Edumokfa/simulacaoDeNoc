@@ -2,8 +2,8 @@
     "grafo_tarefas": [
         { 
             "tarefa_origem": "8",
-            "tarefa_destino": "9",
-            "quantidade_pacotes": 2
+            "tarefa_destino": "40",
+            "quantidade_pacotes": 1
         },
         { 
             "tarefa_origem": "3",
