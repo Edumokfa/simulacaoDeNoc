@@ -56,8 +56,12 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
                 String origem = (String) jsonTarefa.get("tarefa_origem");
                 String destino = (String) jsonTarefa.get("tarefa_destino");
 
-                preencheTarefa(matriz, quantTarefas, origem);
-                preencheTarefa(matriz, quantTarefas, destino);
+                if (!matriz[altura][largura].listaTarefas.stream().map(s -> s.nomeTarefa).collect(Collectors.toList()).contains(origem)) {
+                    preencheTarefa(matriz, quantTarefas, origem);
+                }
+                if (!origem.equals(destino)) {
+                    preencheTarefa(matriz, quantTarefas, destino);
+                }
 
                 for (int i = 0; i < matriz.length; i++) {
                     for (int j = 0; j < matriz[0].length; j++) {
