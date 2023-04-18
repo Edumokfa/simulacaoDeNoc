@@ -1,6 +1,5 @@
 package simulacaodenoc;
 
-import com.sun.tools.javac.util.StringUtils;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import org.json.simple.parser.ParseException;
 
 public class SimulacaoDeNoCMPSoCAspiralInverso {
 
-    private static String diretorio = "C:\\Users\\edumo\\Documents\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\";
+    private static String diretorio = "C:\\Users\\edumo\\OneDrive\\Documentos\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\";
     static boolean movDireita = true, movEsquerda = false, movBaixo = false, movCima = false;
     static int altura = 0, largura = 0;
 
