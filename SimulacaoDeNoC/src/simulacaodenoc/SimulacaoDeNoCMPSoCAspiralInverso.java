@@ -3,7 +3,9 @@ package simulacaodenoc;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -12,65 +14,69 @@ import org.json.simple.parser.ParseException;
 
 public class SimulacaoDeNoCMPSoCAspiralInverso {
 
-    private static String diretorio = "C:\\Users\\edumo\\OneDrive\\Documentos\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\";
+    private static final String diretorio = "C:\\Users\\edumo\\OneDrive\\Documentos\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\";
     static boolean movDireita = true, movEsquerda = false, movBaixo = false, movCima = false;
-    static int altura = 0, largura = 0;
+    static int altura = 0, largura = 1;
 
-    static class Objeto {
+    public static class TarefaReferencia {
 
-        public String nome = "";
-        public int valor = 0;
-        public Integer largura;
-        public Integer altura;
-        public int quantidadeUsos = 0;
-        public List<Tarefa> listaTarefas = new ArrayList<>();
+        public int altura;
+        public int largura;
 
-        public Objeto() {
-        }
-
-        public Objeto(String nome, Integer largura, Integer altura) {
-            this.nome = nome;
+        public TarefaReferencia(int altura, int largura) {
             this.altura = altura;
             this.largura = largura;
         }
     }
 
-    static class Tarefa {
-
-        public String nomeTarefa = "";
-
-        public Tarefa(String nomeTarefa) {
-            this.nomeTarefa = nomeTarefa;
-        }
-    }
-
-    static Objeto[][] preencheValoreMatriz(Objeto[][] matriz, String jsonAplicacao, int quantTarefas) {
+    private static Objeto[][] preencheValoreMatriz(Objeto[][] matriz, String jsonAplicacao, int quantTarefas) {
         try {
+            Map<String, TarefaReferencia> tarefasReferencia = new HashMap<>();
+
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(diretorio + jsonAplicacao + ".json"));
             JSONArray tarefas = (JSONArray) jsonObject.get("grafo_tarefas");
+            List<String> tarefasDistintas = new ArrayList<>();
             for (Object tarefa : tarefas.toArray()) {
                 JSONObject jsonTarefa = (JSONObject) tarefa;
-                //testando apenas os números (AJUSTAR)
-                String origem = (String) jsonTarefa.get("tarefa_origem");
-                String destino = (String) jsonTarefa.get("tarefa_destino");
-
-                if (!matriz[altura][largura].listaTarefas.stream().map(s -> s.nomeTarefa).collect(Collectors.toList()).contains(origem)) {
-                    preencheTarefa(matriz, quantTarefas, origem);
+                String tarefaOrigem = (String) jsonTarefa.get("tarefa_origem");
+                String tarefaDestino = (String) jsonTarefa.get("tarefa_destino");
+                if (!tarefasDistintas.contains(tarefaOrigem)) {
+                    tarefasDistintas.add(tarefaOrigem);
                 }
-                if (!origem.equals(destino)) {
-                    preencheTarefa(matriz, quantTarefas, destino);
+                if (!tarefasDistintas.contains(tarefaDestino)) {
+                    tarefasDistintas.add(tarefaDestino);
                 }
+            }
 
+            for (String tarefa : tarefasDistintas) {
+                preencheTarefa(matriz, quantTarefas, tarefa);
+                tarefasReferencia.put(tarefa, new TarefaReferencia(altura, largura));
                 for (int i = 0; i < matriz.length; i++) {
                     for (int j = 0; j < matriz[0].length; j++) {
                         Objeto objetoAtual = matriz[i][j];
-                        System.out.print(String.format("%5s", String.join("|", objetoAtual.listaTarefas.stream().map(t -> t.nomeTarefa).collect(Collectors.toList()))));
+                        System.out.print(String.format("%15s", String.join("|", objetoAtual.listaTarefas.stream().map(t -> t.nomeTarefa).collect(Collectors.toList()))));
                     }
                     System.out.println("");
                 }
                 System.out.println("\n");
             }
+            
+            for (Object tarefa : tarefas.toArray()) {
+                JSONObject jsonTarefa = (JSONObject) tarefa;
+                String tarefaOrigem = (String) jsonTarefa.get("tarefa_origem");
+                String tarefaDestino = (String) jsonTarefa.get("tarefa_destino");
+                TarefaReferencia ref = tarefasReferencia.get(tarefaOrigem);
+                matriz[ref.altura][ref.largura].valor += (Long) jsonTarefa.get("quantidade_pacotes");
+            }
+            
+            for (int i = 0; i < matriz.length; i++) {
+                    for (int j = 0; j < matriz[0].length; j++) {
+                        Objeto objetoAtual = matriz[i][j];
+                        System.out.print(String.format("%15s", String.join("|", objetoAtual.valor + "")));
+                    }
+                    System.out.println("");
+                }
         } catch (IOException | NumberFormatException | ParseException e) {
             e.printStackTrace();
             throw new RuntimeException("Não foi possível ler o arquivo");
@@ -78,8 +84,7 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
         return matriz;
     }
 
-    protected static void preencheTarefa(Objeto[][] matriz, int quantTarefas, String tarefa) {
-
+    private static void preencheTarefa(Objeto[][] matriz, int quantTarefas, String tarefa) {
         Objeto objetoMatriz = matriz[altura][largura];
         if (objetoMatriz.quantidadeUsos >= quantTarefas) {
             //movimenta na matriz
@@ -114,14 +119,15 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
             }
             objetoMatriz = matriz[altura][largura];
         }
+
         objetoMatriz.quantidadeUsos++;
         objetoMatriz.listaTarefas.add(new Tarefa(tarefa));
     }
 
-    public static void main(String[] args) {
+    public static Objeto[][] preencherTarefas(String nomeApp) {
         try {
             JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(diretorio + "Test1.json"));
+            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(diretorio + nomeApp + ".json"));
             Integer largura = Integer.valueOf((String) jsonObject.get("MPSOC_SIZE_X"));
             Integer altura = Integer.valueOf((String) jsonObject.get("MPSOC_SIZE_Y"));
             JSONArray objeto = (JSONArray) jsonObject.get("TEST");
@@ -133,6 +139,11 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
                 }
             }
 
+            Objeto objetoInicial = matriz[0][0];
+            objetoInicial.altura = 0;
+            objetoInicial.largura = 0;
+            objetoInicial.listaTarefas.add(new Tarefa("GMP"));
+            objetoInicial.quantidadeUsos++;
             for (Object aplicacao : objeto.toArray()) {
                 JSONObject aplicacaoAux = (JSONObject) aplicacao;
 
@@ -142,8 +153,15 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
                     quantidadeExecucoes--;
                 }
             }
+            return matriz;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        preencherTarefas("Test1");
+
     }
 }
