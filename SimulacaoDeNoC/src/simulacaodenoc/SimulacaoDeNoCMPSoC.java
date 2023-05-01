@@ -89,7 +89,7 @@ public class SimulacaoDeNoCMPSoC {
     public static void main(String[] args) {
         try {
             JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader("C:\\Users\\edumo\\Desktop\\SimulacaoDeNoC\\json.json"));
+            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader("C:\\Users\\edumo\\OneDrive\\Documentos\\GitHub\\simulacaoDeNoc\\SimulacaoDeNoC\\json.json"));
             JSONArray objeto = (JSONArray) jsonObject.get("aplicacoes");
             for (Object aplicacao : objeto.toArray()) {
                 Scanner scan = new Scanner(System.in);

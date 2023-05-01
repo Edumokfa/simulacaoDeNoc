@@ -66,7 +66,7 @@ public class SimulacaoDeNoCMPSoCAspiralInverso {
                 JSONObject jsonTarefa = (JSONObject) tarefa;
                 String tarefaOrigem = (String) jsonTarefa.get("tarefa_origem");
                 String tarefaDestino = (String) jsonTarefa.get("tarefa_destino");
-                TarefaReferencia ref = tarefasReferencia.get(tarefaOrigem);
+                TarefaReferencia ref = tarefasReferencia.get(tarefaDestino);
                 matriz[ref.altura][ref.largura].valor += (Long) jsonTarefa.get("quantidade_pacotes");
             }
             
